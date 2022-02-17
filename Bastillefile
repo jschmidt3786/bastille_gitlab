@@ -2,6 +2,7 @@
 SERVICE sshd enable
 SERVICE sshd start
 PKG ccze colordiff htop tmux zsh
+CMD chsh -s zsh
 
 # includes pkg config using 'latest', htoprc, tmux.conf, and zshrc
 CP usr /
