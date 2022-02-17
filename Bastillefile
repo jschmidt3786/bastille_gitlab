@@ -1,4 +1,6 @@
 #INCLUDE
+SERVICE sshd enable
+SERVICE sshd start
 PKG ccze colordiff htop tmux zsh
 
 # includes pkg config using 'latest', htoprc, tmux.conf, and zshrc
