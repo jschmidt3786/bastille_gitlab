@@ -1,0 +1,207 @@
+# Lines configured by zsh-newuser-install
+HISTFILE=~/.history
+HISTSIZE=10000
+SAVEHIST=10000
+setopt notify
+unsetopt beep
+bindkey -e
+# End of lines configured by zsh-newuser-install
+#
+# The following lines were added by compinstall
+zstyle :compinstall filename ${HOME}/.zshrc
+
+autoload -Uz compinit
+compinit
+# End of lines added by compinstall
+
+
+setopt AUTO_CD
+setopt AUTO_PUSHD
+setopt PUSHD_IGNORE_DUPS
+setopt ALWAYS_TO_END
+setopt AUTO_LIST
+setopt AUTO_MENU
+
+setopt APPEND_HISTORY
+setopt EXTENDED_HISTORY
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_FIND_NO_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_NO_STORE
+setopt HIST_REDUCE_BLANKS
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_VERIFY
+
+#setopt INC_APPEND_HISTORY
+setopt INC_APPEND_HISTORY_TIME
+#setopt SHARE_HISTORY
+alias addhist="fc -RI"
+
+setopt TRANSIENT_RPROMPT
+
+setopt NO_SH_FILE_EXPANSION
+
+#LSCOLORS defaults:
+#LSCOLORS="exfxcxdxbxegedabagacad"
+# lighter blue for dirs, cyan symlinks
+export LSCOLORS="Exgxcxdxbxegedabagacad"
+# change timestamps from too-dark-blue to cyan
+export EXA_COLORS="da=36"
+
+export LESSHISTSIZE=0
+#export IFCONFIG_FORMAT="inet:dotted,inet6:cidr,addr:fqdn"
+export IFCONFIG_FORMAT="inet:dotted,inet6:cidr"
+export LOCATE_PATH=~/.locate.db
+
+# for sshpass and lame Linux hosts
+export SSHPASS="r00tme"
+# for smallstep
+export CA_PROVISIONER_PASS='SumthinSupaSecret'
+
+
+###   ssh-agent setup   ###
+SSH_ENV="$HOME/.ssh/environment"
+function start_agent {
+  echo "Initialising new SSH agent..."
+  /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+  echo succeeded
+  chmod 600 "${SSH_ENV}"
+  . "${SSH_ENV}" > /dev/null
+  #[ -f ~/.ssh/dev_rsa ] && /usr/bin/ssh-add ~/.ssh/dev_rsa
+  /usr/bin/ssh-add;
+  }
+if [ -f "${SSH_ENV}" ]; then
+  #source "${SSH_ENV}" > /dev/null
+  source "${SSH_ENV}"
+else
+  start_agent;
+  if [ -e /usr/local/bin/bsdinfo ]; then
+    #clear
+    bsdinfo
+  fi
+fi
+###   ssh-agent setup   ###
+
+
+######   aliases   ######
+#alias ls='exa --color=never'
+if [ -e /usr/local/bin/exa ]; then
+  alias ls='exa --color=auto --links --sort Name --git'
+  alias lf='la -h -s modified'
+  alias lS='la -h -s size'
+  alias ld='la -D'
+else
+  alias ls='ls --color=auto'
+  alias lf='la -hrt' # for ls
+  alias lS='la -hrS' # for ls
+fi
+alias ll='ls -lgF'
+alias la='ll -a'
+alias l.='la -d .[a-zA-Z0-9]*'
+
+alias cp='cp -v'
+alias mv='mv -v'
+#alias rm='rm -iv'
+alias rm='rm -v'
+
+alias cl='clear'
+alias e='exit'
+if [ -e /usr/local/bin/sudo ]; then
+  alias s='sudo -i'
+elif [ -e /usr/local/bin/doas ]; then
+  alias s='doas -S'
+else
+  alias s='su -'
+fi
+alias df='df -hT |grep -v zfs'
+if [ -e /usr/local/bin/colordiff ]; then
+  alias diff='colordiff -d'
+else
+  alias diff='diff -d'
+fi
+if [ -e /usr/local/bin/bat ]; then
+  alias cat='bat'
+fi
+if [ -e /usr/local/bin/vim ]; then
+  alias vi='vim'
+fi
+
+alias stow='xstow'
+alias tmux='tmux -2 -u -l'
+alias free='/usr/local/bin/freebsd-memory.sh'
+
+#echo EUID is $EUID # debug
+## TODO: this is horrible as-is
+if [ ! "$EUID" = "0" ]; then
+  if [ -e /usr/local/bin/sudo ]; then
+    alias bastille='sudo bastille'
+    alias dma='sudo /usr/libexec/dma'
+    alias dmesg='sudo dmesg'
+    alias htop='sudo htop'
+    alias pfctl='sudo pfctl'
+    alias pkg='sudo pkg'
+    alias poweroff='rm ~/.ssh/environment ; sudo poweroff'
+    alias reboot='rm ~/.ssh/environment ; sudo reboot'
+    alias service='sudo service'
+    alias sysctl='sudo sysctl'
+    alias sysrc='sudo sysrc'
+    alias vm='sudo vm'
+  elif [ -e /usr/local/bin/doas ]; then
+    alias bastille='doas bastille'
+    alias dma='doas /usr/libexec/dma'
+    alias dmesg='doas dmesg'
+    alias htop='doas htop'
+    alias pfctl='doas pfctl'
+    alias pkg='doas pkg'
+    alias poweroff='rm ~/.ssh/environment ; doas poweroff'
+    alias reboot='rm ~/.ssh/environment ; doas reboot'
+    alias service='doas service'
+    alias sysctl='doas sysctl'
+    alias sysrc='doas sysrc'
+    alias vm='doas vm'
+  else
+    alias bastille='su -c bastille'
+    alias dma='su -c /usr/libexec/dma'
+    alias dmesg='su -c dmesg'
+    alias htop='su -c htop'
+    alias pfctl='su -c pfctl'
+    alias pkg='su -c pkg'
+    alias poweroff='rm ~/.ssh/environment ; su -c poweroff'
+    alias reboot='rm ~/.ssh/environment ; su -c reboot'
+    alias service='su -c service'
+    alias sysctl='su -c sysctl'
+    alias sysrc='su -c sysrc'
+    alias vm='su -c vm'
+  fi
+fi
+#########################
+
+PATH="${PATH}:${HOME}/bin:${HOME}/scripts:."
+
+if [ ! "$EUID" = "0" ]; then
+  #PROMPT='%F{green}%n%f%B@%b%F{12}%m%f: %3~%(?.. <%F{red}%?%f>) %# '
+  PROMPT='%F{green}%n%f%B@%b%F{12}%m%f: %~ %# '
+  #PROMPT_COMMAND="printf '\033k$(hostname -s)\033\\';"${PROMPT_COMMAND}
+else
+  PROMPT='%F{red}%n%f%B@%b%F{12}%m%f: %~ %# '
+  #PROMPT_COMMAND="printf '\033k$(hostname -s)\033\\';"${PROMPT_COMMAND}
+fi
+
+RPROMPT='%(?.. <%F{red}%?%f>)'
+
+$(getent passwd jschmidt > /dev/null) && \
+if [ -f ~jschmidt/.shell_prompt.sh ] && [ -f ~jschmidt/.shell_prompt.sh.root ]; then
+  source ~jschmidt/.shell_prompt.sh
+elif [ -f ~/.shell_prompt.sh ]; then
+  source ~/.shell_prompt.sh
+fi
+
+function unpwrlin() {
+  rm ~/.lesshst ~/.shell_prompt.sh ~/.tmuxline ~/.viminfo &>> /dev/null
+}
+
+function unpwrline() {
+  rm ~/.lesshst ~/.shell_prompt.sh ~/.tmuxline ~/.viminfo &>> /dev/null
+  exit
+}

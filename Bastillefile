@@ -1,0 +1,34 @@
+#INCLUDE
+PKG ccze colordiff htop tmux zsh
+
+# includes pkg config using 'latest', htoprc, tmux.conf, and zshrc
+CP usr /
+PKG update
+
+PKG www/gitlab-ce databases/postgresql13-server databases/postgresql13-contrib
+
+SERVICE gitlab enable
+#SERVICE gitlab_pages enable
+
+SERVICE postgresql enable
+SERVICE postgresql initdb
+SERVICE postgresql start
+
+# bootstrap script for the heavy lifting
+CP root /
+CMD /root/script1.sh
+
+PKG nginx
+SERVICE nginx enable
+# todo
+#CP nginx/usr /
+
+# turn off IPv6
+# todo
+#CP gitlab/usr /
+
+# just self-signed tls keys
+CMD /root/script2.sh
+
+SERVICE nginx start
+
