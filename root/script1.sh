@@ -30,7 +30,7 @@ chmod 2770 /usr/local/git/repositories
 
 echo "press enter to edit config/database.yml"
 echo "comment out password: and host:"
-read
+read -r pause
 vi config/database.yml
 
 chown git /usr/local/share/gitlab-shell
